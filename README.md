@@ -75,6 +75,21 @@ Done: N part(s) uploaded to s3://my-bucket/logs/stream.jsonl
 > [S3 Lifecycle rule to expire incomplete multipart uploads](https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpu-abort-incomplete-mpu-lifecycle-config.html)
 > as a backstop against parts left behind by processes that are hard-killed.
 
+### Streams smaller than one part
+
+S3's 5 MiB minimum applies to every part *except the last* — [there is no
+minimum size limit on the last part](https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html)
+(part size is otherwise 5 MiB–5 GiB). So a stream whose entire contents are
+under 5 MiB still uploads correctly: the full buffer is flushed on EOF as a
+single, final part, which is exempt from the minimum. An empty stream uploads
+nothing — `writer.py` exits without creating an object.
+
+Trade-off: this sample always uses multipart upload, even for tiny inputs, so a
+small object costs two extra requests (`CreateMultipartUpload` +
+`CompleteMultipartUpload`) versus a single `PutObject`. That is the deliberate
+price of not needing the size in advance. If you already know the data is small
+and know its size, a plain `PutObject` is simpler and cheaper.
+
 ## Cleaning up
 
 Delete any test objects you created and empty/remove the test bucket to avoid
