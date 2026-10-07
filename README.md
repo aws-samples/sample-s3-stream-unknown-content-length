@@ -24,7 +24,7 @@ aborts the upload so no orphaned parts are left behind.
 
 ## Prerequisites
 
-- Python 3.6 or later
+- Python 3.10 or later
 - [`boto3`](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) (`pip install -r requirements.txt`)
 - AWS credentials configured (environment variables, shared config file, or an
   instance/container role) with permission to call `s3:CreateMultipartUpload`,
